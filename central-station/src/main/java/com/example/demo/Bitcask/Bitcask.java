@@ -1,5 +1,6 @@
 package com.example.demo.Bitcask;
 
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -65,7 +66,14 @@ public class Bitcask implements  BitcaskI{
     }
 
     @Override
-    public void put(long key, byte[] value) {
+    public void put(long key, byte[] value) throws IOException {
+        DataItem dataItem = new DataItem(value , key);
+        byte[] dataStored = dataItem.toBytes();
+        partitionLogs();
+        currentFile.seek(currentOffset);
+        currentFile.write(dataStored);
+        map.put(key , new CaskItem(currentFileNo , currentOffset , dataStored.length));
+        //TO DO hint file creation and update offset 
 
     }
 
@@ -76,9 +84,8 @@ public class Bitcask implements  BitcaskI{
         RandomAccessFile randomAccessFile = new RandomAccessFile(baseDataDir + caskItem.getFileName() , "r");
         randomAccessFile.seek(caskItem.getOffset());
         byte[] data = new byte[caskItem.getSize()];
-        randomAccessFile.readFully(data);
-//        return CaskItem.fromBytes(data).value;
-        return ;
+        randomAccessFile.readFully(data);;
+        return DataItem.fromBytes(data).getValue();
     }
 
 }

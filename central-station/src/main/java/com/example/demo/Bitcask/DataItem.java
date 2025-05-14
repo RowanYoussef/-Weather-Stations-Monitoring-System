@@ -33,7 +33,7 @@ public class DataItem {
         byteBuffer.put(value);
         return byteBuffer.array();
     }
-    public DataItem fromBytes(byte[] data){
+    public static DataItem fromBytes(byte[] data){
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         long key = byteBuffer.getLong();
         int size = byteBuffer.getInt();

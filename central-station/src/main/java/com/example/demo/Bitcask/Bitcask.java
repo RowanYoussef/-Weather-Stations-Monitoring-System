@@ -3,6 +3,7 @@ package com.example.demo.Bitcask;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +32,11 @@ public class Bitcask implements  BitcaskI{
     }
 
     private void compactFiles() {
+        HashMap<Long,byte[]> newValues = new HashMap<>();
+        for(Map.Entry<Long, CaskItem> entry : map.entrySet()){
+
+        }
+
     }
 
     private void partitionLogs() throws IOException {
@@ -64,9 +70,15 @@ public class Bitcask implements  BitcaskI{
     }
 
     @Override
-    public byte[] get(long key) {
-        return new byte[0];
+    public byte[] get(long key) throws IOException {
+        CaskItem caskItem = map.get(key);
+        if(caskItem == null) return null;
+        RandomAccessFile randomAccessFile = new RandomAccessFile(baseDataDir + caskItem.getFileName() , "r");
+        randomAccessFile.seek(caskItem.getOffset());
+        byte[] data = new byte[caskItem.getSize()];
+        randomAccessFile.readFully(data);
+//        return CaskItem.fromBytes(data).value;
+        return ;
     }
-
 
 }

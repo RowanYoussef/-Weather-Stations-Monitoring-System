@@ -5,6 +5,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -32,12 +33,35 @@ public class Bitcask implements  BitcaskI{
         }, 1, 5, TimeUnit.MINUTES);
     }
 
-    private void compactFiles() {
-        HashMap<Long,byte[]> newValues = new HashMap<>();
+    private void compactFiles() throws IOException {
+        HashMap<Long,DataItem> newValues = new HashMap<>();
         for(Map.Entry<Long, CaskItem> entry : map.entrySet()){
-
+            byte[] value = get(entry.getKey());
+            if (value != null) {
+                newValues.put(entry.getKey(), new DataItem(value , entry.getKey()));
+            }
+        }
+        deleteFiles(baseDataDir);
+        deleteFiles(baseHintDir);
+        String compactFile = String.format("%08d.data", ++fileCounter);
+        try (RandomAccessFile randomAccessFile = new RandomAccessFile(baseDataDir + compactFile, "rw")) {
+            long offset = 0;
+            for (DataItem dataItem : newValues.values()) {
+                byte[] data = dataItem.toBytes();
+                randomAccessFile.write(data);
+                CaskItem caskItem = new CaskItem(compactFile, offset, data.length);
+                map.put(dataItem.getKey(), caskItem);
+                writeToHintFile(caskItem , dataItem.getKey());
+                offset += data.length;
+            }
         }
 
+    }
+    private void deleteFiles(String directory){
+        File dir = new File(directory);
+        for(File file : Objects.requireNonNull(dir.listFiles())){
+            file.delete();
+        }
     }
 
     private void partitionLogs() throws IOException {
@@ -72,9 +96,10 @@ public class Bitcask implements  BitcaskI{
         partitionLogs();
         currentFile.seek(currentOffset);
         currentFile.write(dataStored);
-        map.put(key , new CaskItem(currentFileNo , currentOffset , dataStored.length));
-        //TO DO hint file creation and update offset 
-
+        CaskItem caskItem = new CaskItem(currentFileNo , currentOffset , dataStored.length);
+        map.put(key , caskItem);
+        writeToHintFile(caskItem , key);
+        currentOffset += dataStored.length;
     }
 
     @Override
@@ -86,6 +111,13 @@ public class Bitcask implements  BitcaskI{
         byte[] data = new byte[caskItem.getSize()];
         randomAccessFile.readFully(data);;
         return DataItem.fromBytes(data).getValue();
+    }
+    private void writeToHintFile(CaskItem caskItem , long key) throws IOException {
+        DataOutputStream dataOutputStream = new DataOutputStream(
+                new FileOutputStream(baseDataDir + caskItem.getFileName().replace(".data", ".hint"), true));
+                    dataOutputStream.writeLong(key);
+                    dataOutputStream.writeInt(caskItem.getSize());
+                    dataOutputStream.writeLong(currentOffset);
     }
 
 }

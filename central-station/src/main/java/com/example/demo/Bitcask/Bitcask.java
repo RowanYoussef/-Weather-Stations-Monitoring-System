@@ -1,11 +1,13 @@
 package com.example.demo.Bitcask;
 
+import org.springframework.stereotype.Component;
+
 import javax.xml.crypto.Data;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
+@Component
 public class Bitcask implements  BitcaskI{
     private final String baseDataDir = "bin/";
     private final String baseHintDir = "hint/";
@@ -16,6 +18,7 @@ public class Bitcask implements  BitcaskI{
     private final int maxFileSize = 1024;
     private int fileCounter = 0;
     public Bitcask () throws IOException{
+        ensureDirectoriesExist();
         recoverFromHintFiles();
         partitionLogs();
         cleanupSchedule();
@@ -59,7 +62,10 @@ public class Bitcask implements  BitcaskI{
             file.delete();
         }
     }
-
+    private void ensureDirectoriesExist() {
+        new File(baseDataDir).mkdirs();
+        new File(baseHintDir).mkdirs();
+    }
     private void partitionLogs() throws IOException {
         if (currentFile == null || currentFile.length() > maxFileSize){
             if (currentFile != null) currentFile.close();

@@ -1,9 +1,8 @@
 package com.example.demo.Bitcask;
 
+import javax.xml.crypto.Data;
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -98,7 +97,15 @@ public class Bitcask implements  BitcaskI{
         writeToHintFile(caskItem , key);
         currentOffset += dataStored.length;
     }
+    @Override
+    public List<DataItem> getAll() throws IOException {
+        List<DataItem> result = new LinkedList<>();
+        for(Map.Entry<Long, CaskItem> e : map.entrySet()){
+            result.add(DataItem.fromBytes(get(e.getKey())));
+        }
+        return result;
 
+    }
     @Override
     public byte[] get(long key) throws IOException {
         CaskItem caskItem = map.get(key);

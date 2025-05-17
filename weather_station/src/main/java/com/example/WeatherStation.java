@@ -10,7 +10,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.json.simple.JSONObject;
 
-public class weatherStation {
+public class WeatherStation {
     public static void main(String[] args) {
         Properties properties = new Properties();
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -21,7 +21,7 @@ public class weatherStation {
         StringSerializer.class.getName());
         JSONObject message = new JSONObject();
         long s_no = 0;
-        message.put("station_id", 1);
+        message.put("station_id", "1");
         while(true) {
             try (KafkaProducer<String,String> producer = new KafkaProducer<>(properties)) {
 
@@ -47,7 +47,7 @@ public class weatherStation {
                 weather.put("wind_speed", ThreadLocalRandom.current().nextInt(0, 300 + 1));
 
                 message.put("weather", weather);
-                message.put("time_stamp", Instant.now());
+                message.put("time_stamp", Instant.now().toString());
                 message.put("s_no", s_no);
 
                 ProducerRecord<String, String> record = new ProducerRecord<>("weather",
@@ -69,7 +69,7 @@ public class weatherStation {
                 long finish = System.currentTimeMillis();
                 long timeElapsed = finish - start;
                 try {
-                    Thread.sleep(1000 - timeElapsed);
+                    Thread.sleep(Math.max(0, 1000 - timeElapsed));
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

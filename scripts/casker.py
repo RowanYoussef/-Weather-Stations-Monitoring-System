@@ -12,14 +12,14 @@ def view_all():
     if resp.status_code == 200:
         data = resp.json()
         print(data)
-        # Optionally, write to CSV with timestamp
+        # Write to CSV with only key and value columns
         timestamp = int(time.time())
-        filename = f"{timestamp}_all.csv"
+        filename = f"{timestamp}.csv"
         with open(filename, "w", newline="") as csvfile:
-            if data:
-                writer = csv.DictWriter(csvfile, fieldnames=data[0].keys())
-                writer.writeheader()
-                writer.writerows(data)
+            writer = csv.DictWriter(csvfile, fieldnames=["key", "value"])
+            writer.writeheader()
+            for key, value in data.items():
+                writer.writerow({"key": key, "value": value})
         print(f"Saved to {filename}")
     else:
         print("Failed to fetch all entries:", resp.text)
@@ -43,18 +43,21 @@ def put_key(data):
         print(f"Error during PUT request: {e}")
 
 def perf(clients):
-    timestamp = int(time.time())
+    
     threads = []
+    output_dir = "perf_outputs"
+    os.makedirs(output_dir, exist_ok=True)
     def worker(thread_num):
+        timestamp = int(time.time())
         resp = requests.get(f"{API_URL}/")
         if resp.status_code == 200:
             data = resp.json()
-            filename = f"{timestamp}_thread_{thread_num}.csv"
+            filename = os.path.join(output_dir, f"{timestamp}_thread_{thread_num}.csv")
             with open(filename, "w", newline="") as csvfile:
-                if data:
-                    writer = csv.DictWriter(csvfile, fieldnames=data[0].keys())
-                    writer.writeheader()
-                    writer.writerows(data)
+                writer = csv.DictWriter(csvfile, fieldnames=["key", "value"])
+                writer.writeheader()
+                for key, value in data.items():
+                    writer.writerow({"key": key, "value": value})
             print(f"Thread {thread_num}: Saved to {filename}")
         else:
             print(f"Thread {thread_num}: Failed to fetch all entries:", resp.text)

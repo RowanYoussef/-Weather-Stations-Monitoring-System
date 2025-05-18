@@ -1,12 +1,14 @@
 package com.example.demo.Bitcask;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.xml.crypto.Data;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+@Slf4j
 @Component
 public class Bitcask implements  BitcaskI{
     private final String baseDataDir = "bin/";
@@ -15,7 +17,7 @@ public class Bitcask implements  BitcaskI{
     private String currentFileNo;
     private RandomAccessFile currentFile;
     private long currentOffset;
-    private final int maxFileSize = 1024;
+    private final int maxFileSize = 1024; // 500 KB
     private int fileCounter = 0;
     public Bitcask () throws IOException{
         ensureDirectoriesExist();
@@ -29,7 +31,7 @@ public class Bitcask implements  BitcaskI{
             try{
                 compactFiles();
             }catch(Exception ignored){}
-        }, 1, 5, TimeUnit.MINUTES);
+        }, 1, 30, TimeUnit.SECONDS);
     }
 
     private void compactFiles() throws IOException {
@@ -104,10 +106,13 @@ public class Bitcask implements  BitcaskI{
         currentOffset += dataStored.length;
     }
     @Override
-    public List<DataItem> getAll() throws IOException {
-        List<DataItem> result = new LinkedList<>();
+    public Map<Long, String> getAll() throws IOException {
+        Map<Long, String> result = new HashMap<>();
         for(Map.Entry<Long, CaskItem> e : map.entrySet()){
-            result.add(DataItem.fromBytes(get(e.getKey())));
+            long key = e.getKey().longValue();
+            System.out.println(key);
+            byte[] bytes = get(key);
+            result.put(key, new String(bytes, StandardCharsets.UTF_8));
         }
         return result;
 
@@ -116,15 +121,21 @@ public class Bitcask implements  BitcaskI{
     public byte[] get(long key) throws IOException {
         CaskItem caskItem = map.get(key);
         if(caskItem == null) return null;
-        RandomAccessFile randomAccessFile = new RandomAccessFile(baseDataDir + caskItem.getFileName() , "r");
-        randomAccessFile.seek(caskItem.getOffset());
         byte[] data = new byte[caskItem.getSize()];
-        randomAccessFile.readFully(data);;
+        try {
+            RandomAccessFile randomAccessFile = new RandomAccessFile(baseDataDir + caskItem.getFileName(), "r");
+            randomAccessFile.seek(caskItem.getOffset());
+            randomAccessFile.readFully(data);
+            randomAccessFile.close();
+        } catch (RuntimeException e) {
+            log.error(String.valueOf(e.fillInStackTrace()));
+            throw new RuntimeException(e);
+        }
         return DataItem.fromBytes(data).getValue();
     }
     private void writeToHintFile(CaskItem caskItem , long key) throws IOException {
         DataOutputStream dataOutputStream = new DataOutputStream(
-                new FileOutputStream(baseDataDir + caskItem.getFileName().replace(".data", ".hint"), true));
+                new FileOutputStream(baseHintDir + caskItem.getFileName().replace(".data", ".hint"), true));
                     dataOutputStream.writeLong(key);
                     dataOutputStream.writeInt(caskItem.getSize());
                     dataOutputStream.writeLong(currentOffset);

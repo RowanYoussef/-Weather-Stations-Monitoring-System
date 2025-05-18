@@ -28,19 +28,16 @@ public class bitcaskAPI {
         long station = Long.parseLong(stationId);
         byte[] pureData = cask.get(station);
         String message = new String(pureData, StandardCharsets.UTF_8);
-        System.out.println(message);
-        JSONObject json = new JSONObject(message);
-        return new ResponseEntity<>(json, HttpStatus.OK);
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
     @GetMapping("/")
     public ResponseEntity<?> getAllEntries() throws IOException {
-        List<DataItem> list = cask.getAll();
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        Map<Long, String> m = cask.getAll();
+        return new ResponseEntity<>(m, HttpStatus.OK);
     }
     @PostMapping("/put")
     public ResponseEntity<?> putEntry(@RequestBody String message) throws JSONException, IOException {
         JSONObject json = new JSONObject(message);
-        System.out.println(message);
         Long key = Long.valueOf((Integer)json.get("station_id"));
         cask.put(key, message.getBytes());
         return new ResponseEntity<>(Map.of("Message", "Message was casked successfully!"), HttpStatus.OK);

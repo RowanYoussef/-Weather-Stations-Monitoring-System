@@ -1,6 +1,8 @@
 package com.example.demo.Bitcask;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class DataItem {
     public DataItem(byte[] value, long key) {
@@ -37,7 +39,8 @@ public class DataItem {
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         long key = byteBuffer.getLong();
         int size = byteBuffer.getInt();
-        byte[] dataBytes = new byte[]{byteBuffer.get(size)};
+        byte[] dataBytes = new byte[size];
+        byteBuffer.get(dataBytes);
         return new DataItem(dataBytes , key);
     }
 }

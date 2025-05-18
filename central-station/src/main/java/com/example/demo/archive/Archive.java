@@ -1,5 +1,11 @@
 package com.example.demo.archive;
 
-public class Archive {
-    
+import java.util.List;
+
+public class Archive implements  Listener{
+
+    @Override
+    public void update(List<String> buffer) {
+
+    }
 }

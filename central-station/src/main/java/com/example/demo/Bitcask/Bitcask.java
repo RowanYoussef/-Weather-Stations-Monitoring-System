@@ -128,7 +128,7 @@ public class Bitcask implements  BitcaskI{
             randomAccessFile.readFully(data);
             randomAccessFile.close();
         } catch (RuntimeException e) {
-            log.error(String.valueOf(e.fillInStackTrace()));
+            System.out.println(String.valueOf(e.fillInStackTrace()));
             throw new RuntimeException(e);
         }
         return DataItem.fromBytes(data).getValue();

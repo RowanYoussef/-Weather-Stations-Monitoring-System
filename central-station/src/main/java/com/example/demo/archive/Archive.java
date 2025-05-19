@@ -26,6 +26,7 @@ public class Archive implements  Listener{
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final DateTimeFormatter dateFormatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.of("UTC"));
+    InvalidMessageHandler invalidMessageHandler = new InvalidMessageHandler("invalid_messages.log");
 
     @Override
     public void update(List<String> buffer) {
@@ -54,8 +55,7 @@ public class Archive implements  Listener{
                 groupedRecords.computeIfAbsent(partitionKey, k -> new ArrayList<>()).add(genericRecord);
 
             } catch (Exception e) {
-                System.err.println("invalid JSON: " + json);
-                e.printStackTrace();
+               invalidMessageHandler.handle(json);
             }
         }
 

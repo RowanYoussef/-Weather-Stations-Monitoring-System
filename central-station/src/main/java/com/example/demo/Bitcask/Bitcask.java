@@ -1,5 +1,7 @@
 package com.example.demo.Bitcask;
 
+import com.example.demo.archive.Archive;
+import com.example.demo.archive.Listener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +21,7 @@ public class Bitcask implements  BitcaskI{
     private long currentOffset;
     private final int maxFileSize = 1024; // 500 KB
     private int fileCounter = 0;
+    private Listener archive;
     public Bitcask () throws IOException{
         ensureDirectoriesExist();
         recoverFromHintFiles();

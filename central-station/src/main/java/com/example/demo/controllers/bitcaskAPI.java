@@ -35,12 +35,5 @@ public class bitcaskAPI {
         Map<Long, String> m = cask.getAll();
         return new ResponseEntity<>(m, HttpStatus.OK);
     }
-    @PostMapping("/put")
-    public ResponseEntity<?> putEntry(@RequestBody String message) throws JSONException, IOException {
-        JSONObject json = new JSONObject(message);
-        Long key = Long.valueOf((Integer)json.get("station_id"));
-        cask.put(key, message.getBytes());
-        return new ResponseEntity<>(Map.of("Message", "Message was casked successfully!"), HttpStatus.OK);
-    }
 
 }

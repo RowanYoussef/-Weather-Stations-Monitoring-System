@@ -5,7 +5,7 @@ import java.util.List;
 
 public class EventManager {
     private final List<Listener> listeners;
-    EventManager(){
+    public EventManager(){
         listeners = new LinkedList<>();
     }
 

@@ -12,6 +12,7 @@ import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
@@ -27,7 +28,9 @@ public class Archive implements  Listener{
     private static final DateTimeFormatter dateFormatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.of("UTC"));
     InvalidMessageHandler invalidMessageHandler = new InvalidMessageHandler("invalid_messages.log");
-
+    public Archive(){
+        new File("archive/").mkdirs();
+    }
     @Override
     public void update(List<String> buffer) {
         Map<String, List<GenericRecord>> groupedRecords = new HashMap<>();

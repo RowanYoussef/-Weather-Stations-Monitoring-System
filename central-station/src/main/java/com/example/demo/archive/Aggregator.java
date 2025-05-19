@@ -13,7 +13,7 @@ public class Aggregator {
 
     public void send(String message){
         messageBuffer.add(message);
-        if(messageBuffer.size() >= 10000) {
+        if(messageBuffer.size() >= 10) {
             event.notifyListeners(messageBuffer);
             messageBuffer.clear();
         }

@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 import com.example.demo.Bitcask.DataItem;
+import com.example.demo.channels.PublisherSubscriber;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,6 +24,8 @@ import java.util.Map;
 public class bitcaskAPI {
     @Autowired
     BitcaskI cask;
+    @Autowired
+    PublisherSubscriber publisherSubscriber;
     @GetMapping("/{id}")
     public ResponseEntity<?> getEntry(@PathVariable("id") String stationId) throws IOException, JSONException {
         long station = Long.parseLong(stationId);
@@ -34,6 +37,11 @@ public class bitcaskAPI {
     public ResponseEntity<?> getAllEntries() throws IOException {
         Map<Long, String> m = cask.getAll();
         return new ResponseEntity<>(m, HttpStatus.OK);
+    }
+    @PostMapping("/put")
+    public ResponseEntity<?> putEntry(@RequestBody String message) throws JSONException, IOException {
+        publisherSubscriber.send(message);
+        return new ResponseEntity<>(Map.of("Message", "Message was casked successfully!"), HttpStatus.OK);
     }
 
 }

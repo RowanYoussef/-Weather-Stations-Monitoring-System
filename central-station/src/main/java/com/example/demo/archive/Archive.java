@@ -66,7 +66,7 @@ public class Archive implements  Listener{
             String key = entry.getKey();
             List<GenericRecord> records = entry.getValue();
             String timeSuffix = String.valueOf(Instant.now().getEpochSecond());
-            String outputPath = "archive/" + key + "/statuses_" + timeSuffix + ".parquet";
+            String outputPath = "/parquet/" + key + "/statuses_" + timeSuffix + ".parquet";
             writeParquetFile(outputPath, records);
         }
     }

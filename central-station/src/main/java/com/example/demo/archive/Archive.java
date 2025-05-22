@@ -29,7 +29,7 @@ public class Archive implements  Listener{
             DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.of("UTC"));
     InvalidMessageHandler invalidMessageHandler = new InvalidMessageHandler("invalid_messages.log");
     public Archive(){
-        new File("archive/").mkdirs();
+        new File("parquet/").mkdirs();
     }
     @Override
     public void update(List<String> buffer) {

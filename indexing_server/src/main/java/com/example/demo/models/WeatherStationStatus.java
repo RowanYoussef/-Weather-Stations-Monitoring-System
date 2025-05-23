@@ -1,6 +1,6 @@
-package com.example.demo.indexingServer;
+package com.example.demo.models;
 
-public class WeatherStation {
+public class WeatherStationStatus {
     public long station_id;
     public long s_no;
     public String battery_status;

@@ -16,7 +16,7 @@ public class Main {
     public static void main(String[] args) {
         Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "weather-stream-app");
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
 
@@ -29,9 +29,10 @@ public class Main {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode node = mapper.readTree(value);
                 int humidity = node.get("weather").get("humidity").asInt();
+                if(humidity >= 70)
+                    System.out.println(node.toString());
                 return humidity >= 70;
             } catch (Exception e) {
-                // System.out.println(e.getMessage());
                 e.printStackTrace();
                 return false;
             }

@@ -14,67 +14,71 @@ public class WeatherStation {
     public static void main(String[] args) {
         Properties properties = new Properties();
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-        "127.0.0.1:9092");
+        "kafka:9092");
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
         StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
         StringSerializer.class.getName());
         JSONObject message = new JSONObject();
         long s_no = 0;
-        message.put("station_id", "1");
-        while(true) {
-            try (KafkaProducer<String,String> producer = new KafkaProducer<>(properties)) {
 
+        // Extract numeric ID from pod name (e.g., "weather-station-3" → 3)
+        String podName = System.getenv("STATION_ID");
+        int stationNumber = Integer.parseInt(podName.substring(podName.lastIndexOf("-") + 1));
+        message.put("station_id", String.valueOf(stationNumber));  // Stores 0-9
+
+        
+        try (KafkaProducer<String, String> producer = new KafkaProducer<>(properties)) {
+            while (true) {
+                System.out.println(podName);
                 long start = System.currentTimeMillis();
 
-                // simulates the variations in battery status
-                String battery_status = "Low";
+                String battery_status;
                 int random = ThreadLocalRandom.current().nextInt(0, 100);
-                if(random < 30)
+                if (random < 30)
                     battery_status = "LOW";
-
-                else if(random < 70)
+                else if (random < 70)
                     battery_status = "Medium";
-
                 else
                     battery_status = "High";
-                
+
                 JSONObject weather = new JSONObject();
+                weather.put("humidity", ThreadLocalRandom.current().nextInt(1, 101));
+                weather.put("temperature", ThreadLocalRandom.current().nextInt(-130, 135));
+                weather.put("wind_speed", ThreadLocalRandom.current().nextInt(0, 301));
 
-                // random weather data
-                weather.put("humidity", ThreadLocalRandom.current().nextInt(1, 100 + 1));
-                weather.put("temperature", ThreadLocalRandom.current().nextInt(-130, 134 + 1));
-                weather.put("wind_speed", ThreadLocalRandom.current().nextInt(0, 300 + 1));
-
+                message.put("battery_status", battery_status);
                 message.put("weather", weather);
                 message.put("time_stamp", Instant.now().toString());
                 message.put("s_no", s_no);
 
-                ProducerRecord<String, String> record = new ProducerRecord<>("weather",
-                message.toString());
+                ProducerRecord<String, String> record = new ProducerRecord<>("weather", message.toString());
 
-                // simulates the message dropping
-                if(ThreadLocalRandom.current().nextInt(0, 100) >= 10)
-                    producer.send(record);
+                // simulate message drop
+                if (ThreadLocalRandom.current().nextInt(0, 100) >= 10)
+                    producer.send(record, (metadata, exception) -> {
+                        if (exception != null) {
+                            System.err.println("Failed to send message: " + exception.getMessage());
+                        } else {
+                            System.out.println("Sent message to " + metadata.topic() + 
+                                            " partition " + metadata.partition() + 
+                                            " offset " + metadata.offset());
+                        }
+                    });
+
                 s_no++;
-
-                // reset the s_no when it reaches the maximum long value
-                if(s_no == Long.MAX_VALUE)
+                if (s_no == Long.MAX_VALUE)
                     s_no = 0;
-                
+
                 System.out.println(message.toString());
                 System.out.println();
-                System.out.println();
-                System.out.println();
+
                 long finish = System.currentTimeMillis();
                 long timeElapsed = finish - start;
-                try {
-                    Thread.sleep(Math.max(0, 1000 - timeElapsed));
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                Thread.sleep(Math.max(0, 1000 - timeElapsed));
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

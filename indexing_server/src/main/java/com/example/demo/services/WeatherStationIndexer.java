@@ -29,8 +29,13 @@ public class WeatherStationIndexer {
                     .document(jsonMap)
             );
 
-            IndexResponse response = client.index(request);
-            System.out.println("Indexed document with id: " + response.id());
+            try {
+                IndexResponse response = client.index(request);
+                System.out.println("Indexed document with id: " + response.id());
+            } catch (Exception e) {
+                System.err.println("Failed to index: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 }

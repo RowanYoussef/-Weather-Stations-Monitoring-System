@@ -19,8 +19,8 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 @Service
 public class ParquetWatcher {
 
-    @Value("${parquet.watch-dir}")
-    private String rootDirPath;
+//    @Value("${parquet.watch-dir}")
+    private String rootDirPath = "/parquet";
 
     private final ParquetReader etlService;
     private final WeatherStationIndexer indexer;

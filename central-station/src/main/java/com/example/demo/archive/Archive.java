@@ -29,7 +29,7 @@ public class Archive implements  Listener{
             DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.of("UTC"));
     InvalidMessageHandler invalidMessageHandler = new InvalidMessageHandler("invalid_messages.log");
     public Archive(){
-        new File("archive/").mkdirs();
+        new File("parquet/").mkdirs();
     }
     @Override
     public void update(List<String> buffer) {
@@ -66,7 +66,7 @@ public class Archive implements  Listener{
             String key = entry.getKey();
             List<GenericRecord> records = entry.getValue();
             String timeSuffix = String.valueOf(Instant.now().getEpochSecond());
-            String outputPath = "archive/" + key + "/statuses_" + timeSuffix + ".parquet";
+            String outputPath = "/parquet/" + key + "/statuses_" + timeSuffix + ".parquet";
             writeParquetFile(outputPath, records);
         }
     }

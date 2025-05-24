@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: indexing-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: indexing-server
+  template:
+    metadata:
+      labels:
+        app: indexing-server
+    spec:
+      containers:
+      - name: indexing-server
+        image: indexing-server
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8081
+        volumeMounts:
+        - name: parquet-data
+          mountPath: /parquet
+      volumes:
+      - name: parquet-data
+        persistentVolumeClaim:
+          claimName: parquet-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: parquet-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: indexing-server
+spec:
+  selector:
+    app: indexing-server
+  ports:
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+  type: ClusterIP
+

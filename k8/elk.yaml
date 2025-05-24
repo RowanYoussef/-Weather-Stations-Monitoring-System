@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search
+  labels:
+    app: search
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: search
+  template:
+    metadata:
+      labels:
+        app: search
+    spec:
+      containers:
+      - name: search
+        image: nshou/elasticsearch-kibana:latest
+        ports:
+        - containerPort: 9200
+        - containerPort: 5601
+        env:
+        - name: SSL_MODE
+          value: "false"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: search
+spec:
+  selector:
+    app: search
+  ports:
+  - name: elasticsearch
+    port: 9200
+    targetPort: 9200
+  - name: kibana
+    port: 5601
+    targetPort: 5601
+  type: NodePort 
+

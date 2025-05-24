@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: weather-station
+spec:
+  serviceName: weather-station  # Headless service
+  replicas: 10
+  selector:
+    matchLabels:
+      app: weather-station
+  template:
+    metadata:
+      labels:
+        app: weather-station
+    spec:
+      containers:
+      - name: station
+        image: weather-station
+        imagePullPolicy: Never
+        env:
+        - name: STATION_ID  # Will be auto-set to 0,1,2,...9
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name  # Returns "weather-station-0", "weather-station-1", etc.
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka:9092"

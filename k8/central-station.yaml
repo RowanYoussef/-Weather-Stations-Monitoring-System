@@ -17,6 +17,7 @@ spec:
       containers:
       - name: central-station
         image: central-station
+        imagePullPolicy: Never
         ports:
         - containerPort: 8080
         env:
@@ -52,5 +53,5 @@ spec:
   - protocol: TCP
     port: 8080
     targetPort: 8080
-  type: ClusterIP # Or NodePort or LoadBalancer if you want external access
+  type: NodePort # Or NodePort or LoadBalancer if you want external access
 

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rain-trigger-processor
+  labels:
+    app: rain-trigger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rain-trigger
+  template:
+    metadata:
+      labels:
+        app: rain-trigger
+    spec:
+      containers:
+      - name: rain-trigger
+        image: kafka-rain-processor
+        imagePullPolicy: Never
+        env:
+        - name: JAVA_OPTS
+          value: "-Xmx512m -Xms256m"
+        env:
+        - name: STATION_ID  # Will be auto-set to 0,1,2,...9
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name  # Returns "weather-station-0", "weather-station-1", etc.
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka:9092"
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: rain-trigger-service
+# spec:
+#   selector:
+#     app: rain-trigger
+#   ports:
+#     - protocol: TCP
+#       port: 8080
+#       targetPort: 8080

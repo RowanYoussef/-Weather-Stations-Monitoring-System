@@ -32,17 +32,6 @@ spec:
           claimName: parquet-pvc
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: parquet-pvc
-spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
-apiVersion: v1
 kind: Service
 metadata:
   name: central-station
@@ -53,5 +42,4 @@ spec:
   - protocol: TCP
     port: 8080
     targetPort: 8080
-  type: NodePort # Or NodePort or LoadBalancer if you want external access
-
+  type: NodePort

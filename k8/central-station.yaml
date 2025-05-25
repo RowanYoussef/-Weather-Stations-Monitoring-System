@@ -26,11 +26,23 @@ spec:
         volumeMounts:
         - name: parquet-data
           mountPath: /parquet
+        - name: bin-data
+          mountPath: /app/bin
+        - name: hint-data
+          mountPath: /app/hint
       volumes:
       - name: parquet-data
         persistentVolumeClaim:
           claimName: parquet-pvc
+      - name: bin-data
+        persistentVolumeClaim:
+          claimName: bin-pvc
+      - name: hint-data
+        persistentVolumeClaim:
+          claimName: hint-pvc
+
 ---
+
 apiVersion: v1
 kind: Service
 metadata:

@@ -18,25 +18,22 @@ spec:
       - name: search
         image: nshou/elasticsearch-kibana:latest
         ports:
-        - containerPort: 9200   # Elasticsearch
-        - containerPort: 5601   # Kibana
+        - containerPort: 9200
+        - containerPort: 5601
         env:
-        - name: xpack.security.enabled
-          value: "false"
+        - name: discovery.type
+          value: single-node
         - name: SSL_MODE
           value: "false"
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 9200
-          initialDelaySeconds: 20
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 9200
-          initialDelaySeconds: 60
-          periodSeconds: 30
+        - name: ES_JAVA_OPTS
+          value: "-Xms512m -Xmx512m"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
 ---
 apiVersion: v1
 kind: Service

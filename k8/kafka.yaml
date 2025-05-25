@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kafka
+  labels:
+    app: kafka
 spec:
   replicas: 1
   selector:
@@ -17,13 +19,24 @@ spec:
         image: bitnami/kafka:3.4.0
         ports:
         - containerPort: 9092
+        - containerPort: 9093
         env:
-        - name: ALLOW_PLAINTEXT_LISTENER
-          value: "yes"
+        - name: KAFKA_CFG_NODE_ID
+          value: "1"
+        - name: KAFKA_CFG_PROCESS_ROLES
+          value: "controller,broker"
+        - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+          value: "1@kafka:9093"
+        - name: KAFKA_CFG_LISTENERS
+          value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
         - name: KAFKA_CFG_ADVERTISED_LISTENERS
           value: "PLAINTEXT://kafka:9092"
-        - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
-          value: "true"
+        - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+          value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+        - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+          value: "CONTROLLER"
+        - name: ALLOW_PLAINTEXT_LISTENER
+          value: "yes"
 ---
 apiVersion: v1
 kind: Service
@@ -33,7 +46,12 @@ spec:
   selector:
     app: kafka
   ports:
-    - protocol: TCP
-      port: 9092
-      targetPort: 9092
-  clusterIP: None
+  - name: kafka-client
+    protocol: TCP
+    port: 9092
+    targetPort: 9092
+  - name: kafka-controller
+    protocol: TCP
+    port: 9093
+    targetPort: 9093
+  type: ClusterIP

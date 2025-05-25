@@ -27,17 +27,6 @@ spec:
           claimName: parquet-pvc
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: parquet-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
-apiVersion: v1
 kind: Service
 metadata:
   name: indexing-server
@@ -49,4 +38,3 @@ spec:
     targetPort: 8081
     protocol: TCP
   type: ClusterIP
-

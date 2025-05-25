@@ -95,7 +95,8 @@ public class WeatherStation {
                                 lastTime = (String) newWeather.get("time");
                                 System.out.println("updated time: " + lastTime);
                                 weather.put("humidity", newWeather.get("relative_humidity_2m"));
-                                weather.put("temperature", newWeather.get("temperature_2m"));
+                                int degreesInCelsius = (int) ((double) newWeather.get("temperature_2m") * 9 / 5) + 32;
+                                weather.put("temperature", degreesInCelsius);    // degrees in fahrenheight
                                 weather.put("wind_speed", newWeather.get("wind_speed_10m"));
                             }
                             System.out.println("Created JSON: " + weather.toJSONString());
@@ -138,7 +139,6 @@ public class WeatherStation {
                 try {
                     Thread.sleep(Math.max(0, 1000 - timeElapsed));
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }

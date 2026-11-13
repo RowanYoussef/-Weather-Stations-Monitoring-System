@@ -1,6 +1,9 @@
 # -Weather-Stations-Monitoring-System
 
 ![image](https://github.com/user-attachments/assets/3f77f66b-97cf-44c1-8bd8-6381a5a16e3e)
+# Kibana dashboard
+<img width="602" height="176" alt="image" src="https://github.com/user-attachments/assets/84e3be1f-86dd-48ad-bc23-ca0bf17c60a9" />
+
 
 # Kibana visualization showing the percentage of dropped messages
 - The blue section represents received messages .
